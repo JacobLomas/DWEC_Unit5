@@ -10,9 +10,9 @@ function main(){
         else{
             img.src="imagenes/gato3.jpg";
             img.id="3";
-        }
-            
+        }            
     })
+    
     document.getElementById("dcha").addEventListener("click", function(){
         var img = document.querySelector("img");
         var id=parseInt(img.id);
@@ -23,7 +23,6 @@ function main(){
         else{
             img.src="imagenes/gato0.jpg";
             img.id="0";
-        }
-            
+        }            
     })
 }
