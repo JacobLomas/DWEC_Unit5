@@ -1,62 +1,78 @@
 export class Bola{
     bola;
+    radio;
+    cx;
+    cy;
+    fill;
     incX;
     incY;
-    radio;
-    constructor(svgw, svgh){
-        this.radio=getRandomR();
+    svg;
+    distancias;
+    speed;
+    constructor(radio, cx, cy, fill, svg){
+        this.radio=parseInt(radio);
+        this.cx=parseInt(cx);
+        this.cy=parseInt(cy);
+        this.fill=fill;
+        this.svg=svg;
+        this.distancias=[];
+        this.speed=2;
+        this.incX = -this.speed + (Math.random() * this.speed*2);
+        this.incY = -this.speed + (Math.random()* this.speed*2);
+        
         this.bola=document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        this.bola.setAttribute("r",this.radio);
-        this.bola.setAttribute("cx", getRandomPosX((svgw-this.radio), this.radio));
-        this.bola.setAttribute("cy", getRandomPosY((svgh-this.radio), this.radio));
-        this.bola.setAttribute("fill",'#'+(0x1000000+(Math.random())*0xffffff).toString(16).substr(1,6));
+        this.bola.setAttribute("r", radio);
+        this.bola.setAttribute("cx", cx);
+        this.bola.setAttribute("cy", cy);
+        this.bola.setAttribute("fill", fill);
         this.bola.setAttribute("stroke", "black");
         this.bola.setAttribute("stroke-width", "4");
         this.incX=Math.floor(Math.random() * (7 - (-7))) + (-7);
         this.incY=Math.floor(Math.random() * (7 - (-7))) + (-7);
     };
 
-    dibujar(svg) {
-        svg.appendChild(this.bola);
+    dibujar() {
+        this.svg.appendChild(this.bola);
     };
 
-    animar(svg){
-
-        let posx=parseInt(this.bola.getAttribute("cx"));
-        let posy=parseInt(this.bola.getAttribute("cy"));
-        if((posx + this.radio)>=svg.getBoundingClientRect().width || (posx - this.radio)<=0)
+    animar(){
+        if((this.cx + this.radio)>=this.svg.getBoundingClientRect().width || (this.cx - this.radio)<=0)
             this.incX*=-1;
-        if((posy + this.radio)>=svg.getBoundingClientRect().height || (posy - this.radio)<=0)
+        if((this.cy + this.radio)>=this.svg.getBoundingClientRect().height || (this.cy - this.radio)<=0)
             this.incY*=-1;
-        posx+=this.incX;
-        posy+=this.incY;
-        this.bola.setAttribute("cx", posx);
-        this.bola.setAttribute("cy", posy);
-        /*
-        1.- Para cada bola hay que utilizar una lista con la distancia que hay desde 
-            esa bola hasta cualquiera de las demás bolas.
-
-        2.- Actualizar esa lista cada vez que alguna bola se mueve.
-
-        3.- Comprobar si alguna distancia de la lista < (bola1.radio+bola2.radio)
-            si es así se produce una colisión.
+        this.cx+=this.incX;
+        this.cy+=this.incY;
+        this.bola.setAttribute("cx", this.cx);
+        this.bola.setAttribute("cy", this.cy);
+    }
+    haChocado(bola, i){
+        let dx = this.cx - bola.cx;
+        let dy = this.cy - bola.cy;
+        let distancia = Math.sqrt(dx * dx + dy * dy);
+        distancia=distancia-this.radio-bola.radio;
+        this.distancias[i]=distancia;
+        if(distancia<=0)
+            return true;
+        else
+            return false;
         
-        4.- Cuando colisione, la direccion de la bola cambia (cx, cy).
+    }
+    randomDeg(){
+        var d= 0;
+        while((d == 0) || (d == 90) || (d == 180) || (d == 360)) {
+            d = Math.floor(Math.random() * 360);
+          }
+        
+          var r = (d * 180)/Math.PI;
+          this.incX = Math.sin(r) * this.speed;
+          this.incY = Math.cos(r) * this.speed;
+        
+        }
 
-        5.- La dirección ha de cambiar hasta que deje de colisionar, es decir hasta que
-            distancia > (bola1.radio+bola2.radio).
-
-        */
+    cambioDireccion(){
+        this.incX*=-1;
+        this.incY*=-1;
     }
 }
 
 
-function getRandomR() {
-    return Math.floor(Math.random() * (120 - 10) + 10);//Radio max:120 - min:10
-}
-function getRandomPosX(svgw, radio) {
-    return Math.floor(Math.random() * (svgw - radio) + radio);
-}
-function getRandomPosY(svgh, radio) {
-    return Math.floor(Math.random() * (svgh - radio) + radio);
-}
